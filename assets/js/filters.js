@@ -372,7 +372,7 @@
 
         function linkCollectionBynameCockpitFilter(input, field, options) {
 
-            options = (options || {lookupKey: 'Name'});
+            options = (options || {lookupKey: 'name', separator: '|'});
 
             var foundEntryId;
 
@@ -381,12 +381,29 @@
                 return foundEntryId;
             }
 
-            collectionEntries[field.collection].forEach(function(collectionEntry) {
+            if (field.multiple === true) {
 
-                if (collectionEntry[options.lookupKey] == input) {
-                    foundEntryId = collectionEntry._id;
+                if (input) {
+                    var entries = input.split(options.separator);
+
+                    entries.forEach(function(val) {
+                        collectionEntries[field.collection].forEach(function(collectionEntry) {
+                            if (collectionEntry[options.lookupKey] == val) {
+                                if (!foundEntryId) {
+                                    foundEntryId = [];
+                                }
+                                foundEntryId.push(collectionEntry._id);
+                            }
+                        });
+                    });
                 }
-            });
+            } else {
+                collectionEntries[field.collection].forEach(function(collectionEntry) {
+                    if (collectionEntry[options.lookupKey] == input) {
+                        foundEntryId = collectionEntry._id;
+                    }
+                });
+            }
 
             return foundEntryId;
         }
